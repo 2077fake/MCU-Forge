@@ -639,3 +639,71 @@ canvas { display: block; width: 100%; height: 100%; }
   .hud-tag, .brand-text small, .serial-txt { display: none; }
   .project-bar select.inp { max-width: 150px; }
 }
+
+/* ================================================================
+   Paper 主题（light）：对齐 docs/architecture.png 的视觉语言
+   奶油底 · 2px 黑描边 · 直角小圆角 · 橙色强调 · 等宽标签
+   ================================================================ */
+:root[data-theme="light"] {
+  --r: 6px;
+  --bg: #f6f4ef;
+  --bg-soft: #fbfaf7;
+  --panel: #ffffff;
+  --panel-2: #fbfaf7;
+  --panel-3: #efece4;
+  --line: #1c1c1c;
+  --line-soft: rgba(28, 28, 28, 0.14);
+  --dot: transparent;
+  --text: #1c1c1c;
+  --muted: #555555;
+  --dim: #888888;
+  --accent: #d9541e;
+  --accent-indigo: #1c1c1c;
+  --accent-soft: #fff3ec;
+  --accent-2: #2a9d5c;
+  --ok: #1f8a4c;
+  --warn: #b7791f;
+  --danger: #c0341d;
+  --shadow: none;
+  --glow: 0 0 0 2px rgba(217, 84, 30, 0.25);
+}
+:root[data-theme="light"] body { background-image: none; }
+:root[data-theme="light"] .topbar { background: #f6f4ef; backdrop-filter: none; border-bottom: 2px solid #1c1c1c; box-shadow: none; }
+:root[data-theme="light"] .mark { border-radius: 4px; background: #1c1c1c; box-shadow: none; }
+:root[data-theme="light"] .brand-title b { font-size: 16px; font-weight: 800; letter-spacing: -.3px; }
+:root[data-theme="light"] .hud-tag { border-radius: 3px; color: #d9541e; background: #fff3ec; border: 1px solid #d9541e; }
+:root[data-theme="light"] .sse-pill { border: 1.5px solid #1c1c1c; background: #fff; border-radius: 3px; }
+:root[data-theme="light"] .sse-pill.on { color: #1f8a4c; border-color: #1c1c1c; background: #eaf6ee; box-shadow: none; }
+:root[data-theme="light"] .sse-pill.off { color: #b7791f; border-color: #1c1c1c; background: #fff7e6; }
+:root[data-theme="light"] select.inp,
+:root[data-theme="light"] input.inp { border: 1.5px solid #1c1c1c; border-radius: 4px; background: #fff; }
+:root[data-theme="light"] select.inp:hover,
+:root[data-theme="light"] input.inp:hover { border-color: #d9541e; background-color: #fff3ec; }
+:root[data-theme="light"] .btn { border: 1.5px solid #1c1c1c; border-radius: 4px; background: #fff; font-weight: 600; }
+:root[data-theme="light"] .btn:hover:not(:disabled) { background: #1c1c1c; color: #fff; border-color: #1c1c1c; box-shadow: none; }
+:root[data-theme="light"] .btn.ghost { background: transparent; }
+:root[data-theme="light"] .btn.danger { color: #c0341d; border-color: #c0341d; }
+:root[data-theme="light"] .mini { border: 1.5px solid #1c1c1c; border-radius: 3px; background: #fff; color: #1c1c1c; }
+:root[data-theme="light"] .mini:hover { background: #1c1c1c; color: #fff; border-color: #1c1c1c; }
+:root[data-theme="light"] .mini.act { color: #fff; background: #d9541e; border-color: #1c1c1c; box-shadow: none; }
+:root[data-theme="light"] .badge { border: 1.5px solid #1c1c1c; border-radius: 3px; background: #fff; color: #1c1c1c; }
+:root[data-theme="light"] .badge.ok { background: #eaf6ee; color: #1f8a4c; border-color: #1c1c1c; }
+:root[data-theme="light"] .badge.bad { background: #fdecea; color: #c0341d; border-color: #1c1c1c; }
+:root[data-theme="light"] .badge.warn { background: #fff7e6; color: #b7791f; border-color: #1c1c1c; }
+:root[data-theme="light"] .serial-pill { border: 1.5px solid #1c1c1c; border-radius: 3px; background: #fff; }
+:root[data-theme="light"] .card { border: 2px solid #1c1c1c; border-radius: 6px; background: #fff; box-shadow: none; backdrop-filter: none; }
+:root[data-theme="light"] .card:hover { border-color: #1c1c1c; }
+:root[data-theme="light"] .hud-card::before,
+:root[data-theme="light"] .hud-card::after { display: none; }
+:root[data-theme="light"] .card > .chead { background: #fff; border-bottom: 2px solid #1c1c1c; }
+:root[data-theme="light"] .chead .ttl { font-size: 14px; font-weight: 800; letter-spacing: 0; }
+:root[data-theme="light"] .ctag { font-family: var(--mono); letter-spacing: 2px; color: #888; background: transparent; border: 0; font-weight: 600; }
+:root[data-theme="light"] .pip { border-radius: 0; width: 8px; height: 8px; background: #1c1c1c; }
+:root[data-theme="light"] .pip.live { background: #d9541e; box-shadow: none; }
+:root[data-theme="light"] .vsplit::after,
+:root[data-theme="light"] .hsplit::after { background: #1c1c1c; opacity: .25; }
+:root[data-theme="light"] .vsplit:hover::after, :root[data-theme="light"] .vsplit.drag::after,
+:root[data-theme="light"] .hsplit:hover::after, :root[data-theme="light"] .hsplit.drag::after { background: #d9541e; opacity: 1; box-shadow: none; }
+:root[data-theme="light"] .toast { background: #fff; border: 2px solid #1c1c1c; border-left: 6px solid #d9541e; border-radius: 4px; backdrop-filter: none; box-shadow: none; }
+:root[data-theme="light"] .seg { border: 1.5px solid #1c1c1c; border-radius: 4px; background: #fff; }
+:root[data-theme="light"] .seg button.on { background: #1c1c1c; color: #fff; box-shadow: none; }

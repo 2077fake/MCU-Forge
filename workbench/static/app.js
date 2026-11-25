@@ -1,10 +1,10 @@
-(function () {
+﻿(function () {
 'use strict';
 
 /* ============================== helpers ============================== */
 var $ = function (id) { return document.getElementById(id); };
 var LS_KEY = 'mcu.console.settings.v1';
-var PALETTE = ['#38bdf8', '#34d399', '#fbbf24', '#f472b6', '#a78bfa', '#22d3ee'];
+var PALETTE = ['#d9541e', '#1f6feb', '#2a9d5c', '#8b5cf6', '#c28a00', '#0e9aa7'];
 var PHASE_ORDER = ['handshaking', 'loading', 'erasing', 'writing', 'options', 'done'];
 
 function esc(s) {
@@ -17,7 +17,7 @@ function hex2(n) { return (n < 16 ? '0' : '') + n.toString(16).toUpperCase(); }
 
 var DEFAULTS = {
   project: '', port: 'COM7', baud: 9600, wait: 90,
-  window: 300, termMax: 1500, theme: 'dark', autoscroll: true, hexView: false,
+  window: 300, termMax: 1500, theme: 'light', autoscroll: true, hexView: false,
   filter: 'all', drawerTab: 'set', metaH: 0, wLeft: 0, wRight: 0, curveH: 0, sysH: 0
 };
 var S = {};

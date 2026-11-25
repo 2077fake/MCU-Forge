@@ -1,5 +1,5 @@
-<!DOCTYPE html>
-<html lang="zh-CN" data-theme="dark">
+﻿<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -8,7 +8,7 @@
 <script>
 try {
   var saved = JSON.parse(localStorage.getItem('mcu.console.settings.v1') || '{}');
-  if (saved.theme) document.documentElement.setAttribute('data-theme', saved.theme === 'light' ? 'light' : 'dark');
+  if (saved.theme) document.documentElement.setAttribute('data-theme', saved.theme === 'dark' ? 'dark' : 'light');
 } catch (e) {}
 </script>
 </head>
