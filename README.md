@@ -1,70 +1,44 @@
-# Pilot51 — AI 代驾的 51 单片机工作台
+# MCU-Forge（芯铸 51）
 
-**oknoo · 佛山大学电子信息工程学院**
+面向 STC89/AT89C52 开发板（HC6800-ES / 普中 A2 兼容）的 AI 自驱动开发与实时遥测工作台：
+**Agent 产码 → Keil UV4 编译 → stcgal ISP 烧写 → 串口日志与多通道曲线实时展示**。
 
-你在 AI 编程助手里说一句想要的效果，agent 按固定契约走完 **产码 → 编译 → 烧写 → 点亮 → 验收 → 存档** 六步链；你只需要在网页调试台上看 LED、看串口曲线、看终端。网页是**纯展示面板**——所有编译/烧写/串口操作经 agent 通过本地 API 发起，"后台跑通了"不算数，**你在页面上看得见才算数**。
+## 目录结构
 
-## 架构
-
-![Pilot51 架构](docs/architecture.png)
-
-## 硬件
-
-- 普中 **A4** 开发板（HC6800-ES / 普中 A2 系兼容接法）
-- 实测芯片 **STC89C516RD+**（stcgal 握手 BSL 4.3C，标称 11.0592 MHz，实测 ≈10.99 MHz）
-- LED 在 P2 共 8 位；8 位数码管动态扫描：段码 = P0（经 74HC245），位选 = 74HC138（A/B/C = P2.2/2.3/2.4）
-- USB 转 CH340 串口，9600-8N1
-
-## 软件栈
-
-| 层 | 依赖 |
-|---|---|
-| 编译 | Keil C51（uvproj 工程，器件 AT89C52） |
-| 烧写 | stcgal（协议 `-P stc89`） |
-| 串口 | pyserial |
-| 后端 | Python 3 标准库（无任何 Web 框架） |
-| 前端 | 单文件 vanilla JS（`webui/static/index.html`），SSE 消费 |
-
-## 快速开始
-
-1. 装好 Keil C51、Python 3，`pip install stcgal pyserial`，装好 CH340 驱动。
-2. 双击 `调试台.bat`（等价于 `python webui/server.py`），浏览器打开 <http://127.0.0.1:8765>。
-3. 用 Qoder（或任何 agent CLI）打开本仓库根目录：`AGENTS.md` / `SKILL.md` / `项目.md` 会把六步契约、板卡事实与坑清单喂给 agent，然后直接下达效果指令（例如「跑个流水灯」「测一下它每秒能算多少次」「试一下数码管的动画」）。
-4. 手动模式：`项目.md` 末尾有 API 速查表；`build_flash.py` 是网页没开时的命令行后备。
-
-> 烧写口诀：STC89 只认冷启动——挂上烧写作业后，给板子**断电 3 秒再上电**（DTR 自动复位无效）；烧完新程序自动开跑，无需二次复位。
-
-## 实验成果
-
-`实验/` 每轮含 `说明.md`（设计、取证、实测数据）、例外清单与验收截图，四轮全部真机验收通过：
-
-| 实验 | 效果 | 结果 |
-|---|---|---|
-| 01-折返跑马灯 | P2 单灯 0→7→0 折返，串口同步报 k/n | 端到端首跑，曲线/终端/LED 三方对账一致 |
-| 02-算力跑分 | 16 位乘加链吞吐量上曲线 | **15108 ops/s**（66.2 µs/次），窗口零抖动，离线复算验证 |
-| 03-算力压榨 | A/B/C 三实现同板交替对照 + 指令级取证 | **22077 ops/s（+46.1%）**，跨实现链 53 窗口 0 断点 |
-| 04-数码管动画 | 8 位数码管自增计数器 + 前导零消隐 | 楼梯曲线 227 连续样本 +1，无闪烁无鬼影 |
-
-## 目录
-
-```
-├── AGENTS.md            agent 工作区规则（红线 / 真相地图 / 纪律 / 环境）
-├── SKILL.md             六步链路唯一权威流程
-├── 项目.md              事实库：板卡参数、坑清单、API 速查、目录地图
-├── 调试台.bat            一键启动调试台（127.0.0.1:8765）
-├── build_flash.py       命令行编译+烧写后备
-├── 51模板/              骨架工程（红线只读）：main.c + uart_put 曲线打点协议 + uvproj
-├── webui/               调试台：server.py + static/index.html + 单元测试
-└── 实验/01~04           agent 产物：整目录拷自模板，只改 main.c；含说明.md 与验收截图
+```text
+.
+├── AGENTS.md                  # AI 协作规范与工程红线
+├── SKILL.md                   # 51 效果落地链（六步契约）
+├── start-workbench.bat        # Windows 一键启动器（自动打开 http://127.0.0.1:8765）
+├── docs/
+│   └── hardware-facts.md      # 板卡参数、引脚映射、串口协议、踩坑库与 API 速查
+├── templates/
+│   └── mcu51/                 # 只读 51 骨架工程（含 uart_put 曲线打点库）
+├── workbench/                 # 工作台核心包（零第三方 Web 依赖，仅用标准库 + pyserial/stcgal）
+│   ├── core.py                # 纯逻辑层：日志诊断、HEX 校验、曲线解析、工程扫描
+│   ├── toolchain.py           # Keil UV4 编译与 stcgal 烧写封装（Web 与 CLI 共用）
+│   ├── serial_mgr.py          # 串口独占管理与实时推送
+│   ├── server.py              # HTTP + SSE 后端服务
+│   ├── cli.py                 # 命令行编译烧写工具
+│   ├── static/                # 前端静态资源（index.html / app.css / app.js）
+│   └── tests/                 # 离线单元测试
+├── experiments/               # 工作台实验产物（01-折返跑马灯 ~ 04-数码管动画）
+└── coursework/                # 传统课程汇编实验归档（exp1-asm ~ exp3-asm）
 ```
 
-## 已知边界（摘自 项目.md 坑清单）
+## 快速启动
 
-- STC89 烧写只认冷启动（断 VCC 3 秒），DTR 自动复位无效。
-- CH340 串口号不固定：换 USB 口重插后 Windows 会重新编号，每次烧写/开串口前先枚举，写死必翻车。
-- Edge「睡眠标签页」会冻结纯展示页并停读 SSE：服务端带 30s 写超时释放死连接，前端带 40s 静默看门狗自动重连。
-- 服务单实例（端口 8765）；只监听 127.0.0.1 且无鉴权，请勿暴露到公网。
-
-## License
-
-[MIT](LICENSE) — © 2026 oknoo（佛山大学电子信息工程学院）
+1. **启动网页工作台**（仅监听 `127.0.0.1:8765`）：
+   - 双击 `start-workbench.bat`，或命令行运行：
+     ```powershell
+     py -m workbench.server
+     ```
+2. **命令行编译 / 烧写**（无需打开网页时）：
+   ```powershell
+   py -m workbench.cli --build-only
+   py -m workbench.cli experiments/01-折返跑马灯/template51.uvproj
+   ```
+3. **运行单元测试**：
+   ```powershell
+   py -m unittest discover -s workbench/tests -v
+   ```

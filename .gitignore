@@ -1,7 +1,29 @@
+# Python
 __pycache__/
-*.pyc
-.embeddedskills/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Keil uVision build artifacts & user IDE state
+Objects/
 Listings/
 *.uvgui.*
+*.uvopt
+*.uvoptx
 *.bak
-Objects/*.obj
+*.bak-*
+*.obj
+*.lst
+*.LST
+*.m51
+*.map
+*.lnp
+*.build_log.htm
+*.plg
+*.src
+
+# Local build logs & scratch
+.build_logs/
+.embeddedskills/
+.selftest/
+uv4.log

@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MCU-Forge · 芯铸 51</title>
+<link rel="stylesheet" href="/static/app.css">
+<script>
+try {
+  var saved = JSON.parse(localStorage.getItem('mcu.console.settings.v1') || '{}');
+  if (saved.theme) document.documentElement.setAttribute('data-theme', saved.theme === 'light' ? 'light' : 'dark');
+} catch (e) {}
+</script>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="mark" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="6" y="6" width="12" height="12" rx="2.5"/>
+        <path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/>
+      </svg>
+    </div>
+    <div class="brand-text">
+      <div class="brand-title">
+        <b>芯铸 51</b>
+        <span class="hud-tag">MCU-FORGE</span>
+        <span class="sse-pill" id="sseBadge" title="SSE 实时通道状态">连接中</span>
+      </div>
+      <small id="rootPath" title="工作区根目录">连接中…</small>
+    </div>
+  </div>
+
+  <div class="bar-group grow project-bar">
+    <div class="sel-wrap">
+      <select class="inp" id="projectSel" title="工作区里扫到的 Keil 工程"></select>
+    </div>
+    <button class="mini icon-btn" id="btnRescan" title="重新扫描工程">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 8a5.5 5.5 0 1 1-1.4-3.65"/><path d="M13.5 2.5v3h-3"/></svg>
+      <span>重扫</span>
+    </button>
+    <span class="badge" id="devBadge" title="芯片型号与时钟">—</span>
+    <span class="badge" id="hexBadge" title="hex 产物健康度">hex 待检查</span>
+  </div>
+
+  <div class="bar-group right-bar">
+    <div class="serial-pill" id="serialPill" title="串口占用状态">
+      <span class="light off" id="serialLight"></span>
+      <span class="serial-txt" id="serialText">串口空闲</span>
+    </div>
+    <button class="mini icon-btn" id="btnTheme" title="切换深色 / 浅色主题" aria-label="切换主题">
+      <svg class="ico-sun" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="8" r="3"/><path d="M8 1.5v1.3M8 13.2v1.3M1.5 8h1.3M13.2 8h1.3M3.4 3.4l.9.9M11.7 11.7l.9.9M12.6 3.4l-.9.9M4.3 11.7l-.9.9"/></svg>
+      <svg class="ico-moon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13.3 9.7A5.5 5.5 0 0 1 6.3 2.7a5.5 5.5 0 1 0 7 7z"/></svg>
+    </button>
+    <button class="btn ghost" id="btnSettings" title="设置（存浏览器本地）">设置</button>
+  </div>
+</header>
+
+<main class="workspace" id="workspace">
+  <!-- ---------------- left: project & files ---------------- -->
+  <div class="col" id="colL">
+    <section class="card" id="cardMeta" style="flex:0 0 auto">
+      <div class="chead">
+        <span class="pip"></span>
+        <span class="ttl">工程与产物</span>
+        <span class="ctag">TARGET</span>
+        <div class="tools"><button class="mini" id="btnReloadHex">刷新</button></div>
+      </div>
+      <div class="cbody">
+        <dl class="kv" id="projMeta"></dl>
+        <div class="sub">HEX 校验</div>
+        <dl class="kv" id="hexMeta"></dl>
+        <div id="hexProblems"></div>
+      </div>
+    </section>
+
+    <div class="vsplit" id="splitMeta" title="拖动调整上下比例，双击还原"></div>
+
+    <section class="card" id="cardFiles" style="flex:1 1 auto">
+      <div class="chead">
+        <span class="pip"></span>
+        <span class="ttl">工作区文件</span>
+        <span class="ctag">FS</span>
+        <div class="tools">
+          <button class="mini" id="btnFileUp">上级</button>
+          <button class="mini" id="btnFileHome">工程目录</button>
+        </div>
+      </div>
+      <div class="cbody flush file-pane">
+        <div class="crumb mono" id="fileCrumb"></div>
+        <div class="list" id="fileList"></div>
+      </div>
+    </section>
+  </div>
+
+  <div class="hsplit" id="hsplitL" title="拖动调整左栏宽度，双击还原"></div>
+
+  <!-- ---------------- center: telemetry (oscilloscope & terminal) ---------------- -->
+  <div class="col" id="colC">
+    <section class="card hud-card" id="cardCurve" style="flex:0 0 auto">
+      <div class="chead">
+        <span class="pip live"></span>
+        <span class="ttl">实时示波器</span>
+        <span class="ctag">CH·OSC</span>
+        <div class="tools">
+          <span class="stat" id="curveStat">等待 v: 数据</span>
+          <button class="mini" id="btnPause">暂停</button>
+          <button class="mini" id="btnCsv">导出</button>
+          <button class="mini" id="btnClearCurve">清空</button>
+        </div>
+      </div>
+      <div class="curve-wrap">
+        <canvas id="curve"></canvas>
+        <div class="curve-tip" id="curveTip"></div>
+      </div>
+      <div class="legend" id="legend">
+        <span class="dim legend-hint">固件按 <span class="mono">v: 数值</span> 或 <span class="mono">v: 1,2</span> 打印即可自动绘制多通道荧光曲线</span>
+      </div>
+    </section>
+
+    <div class="vsplit" id="splitCurve" title="拖动调整曲线高度，双击还原"></div>
+
+    <section class="card hud-card" id="cardTerm" style="flex:1 1 auto">
+      <div class="chead">
+        <span class="pip"></span>
+        <span class="ttl">串口终端</span>
+        <span class="ctag">UART·RX/TX</span>
+        <div class="tools">
+          <button class="mini" id="btnHexView">HEX 视图</button>
+          <button class="mini" id="btnSaveLog">保存日志</button>
+          <button class="mini" id="btnClearTerm">清屏</button>
+          <label class="chk"><input type="checkbox" id="chkScroll" checked>自动滚动</label>
+        </div>
+      </div>
+      <div class="term" id="term"></div>
+    </section>
+  </div>
+
+  <div class="hsplit" id="hsplitR" title="拖动调整右栏宽度，双击还原"></div>
+
+  <!-- ---------------- right: diagnostics & syslog ---------------- -->
+  <div class="col" id="colR">
+    <section class="card" id="cardDiag" style="flex:1 1 auto">
+      <div class="chead">
+        <span class="pill" id="jobPill">空闲</span>
+        <b id="jobLabel" class="job-label">没有作业</b>
+        <span class="muted mono job-elapsed" id="jobElapsed"></span>
+      </div>
+      <div class="stat-row" id="buildStats"><span class="stat">等一次编译就有诊断</span></div>
+      <div class="chead filter-bar">
+        <button class="mini act" data-filter="all">全部</button>
+        <button class="mini" data-filter="error">错误</button>
+        <button class="mini" data-filter="warning">警告</button>
+        <button class="mini" data-filter="danger">危险</button>
+        <div class="tools"><button class="mini" id="btnClearDiag">清空</button></div>
+      </div>
+      <div class="cbody" id="diagList"></div>
+    </section>
+
+    <div class="vsplit" id="splitSys" title="拖动调整日志高度，双击还原"></div>
+
+    <section class="card" id="cardSys" style="flex:0 0 auto">
+      <div class="chead">
+        <span class="pip"></span>
+        <span class="ttl">系统日志</span>
+        <span class="ctag">SYS·BUS</span>
+        <div class="tools"><button class="mini" id="btnClearSys">清空</button></div>
+      </div>
+      <div class="syslog" id="syslog"></div>
+    </section>
+  </div>
+</main>
+
+<!-- ---------------- flash overlay ---------------- -->
+<div class="overlay" id="overlay" hidden>
+  <div class="flash-card">
+    <header>
+      <b>冷启动烧写</b>
+      <span class="pill" id="flPill">准备中</span>
+      <span class="muted mono fl-target" id="flTarget"></span>
+    </header>
+    <div class="hero">
+      <div class="pwr" id="flPwr">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M12 3v9"/><path d="M6.6 6.6a8 8 0 1 0 10.8 0"/>
+        </svg>
+      </div>
+      <div class="fl-msg" id="flMsg">把板子断电 3 秒，再重新上电</div>
+      <div class="fl-sub" id="flSub">窗口剩余 — s · 第 0 次尝试</div>
+    </div>
+    <div class="bar"><i id="flBar"></i></div>
+    <div class="fl-lines" id="flLines"></div>
+    <div class="fl-reason" id="flReason" hidden></div>
+    <footer>
+      <button class="btn ghost danger" id="flAbort">关闭窗口</button>
+      <div class="steps">
+        <span class="step" data-phase="handshaking">握手</span>
+        <span class="step" data-phase="loading">载入</span>
+        <span class="step" data-phase="erasing">擦除</span>
+        <span class="step" data-phase="writing">写入</span>
+        <span class="step" data-phase="options">选项</span>
+        <span class="step" data-phase="done">完成</span>
+      </div>
+    </footer>
+  </div>
+</div>
+
+<!-- ---------------- settings drawer ---------------- -->
+<aside class="drawer" id="drawer" aria-label="设置">
+  <div class="dhead">
+    <span class="dtl">工作台设置</span>
+    <button class="dx" id="btnCloseDrawer" title="关闭（Esc）" aria-label="关闭设置">
+      <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 2l8 8M10 2l-8 8" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+  <div class="dtabs" role="tablist">
+    <button class="dtab on" id="tabSet" role="tab">设置</button>
+    <button class="dtab" id="tabDoc" role="tab">说明</button>
+  </div>
+  <div class="dpane on" id="paneSet">
+    <div class="dbody">
+      <div class="dgroup"><h4>烧写</h4>
+        <div class="drow"><label for="stWait">冷启动窗口</label>
+          <div class="ctl"><input class="rng" id="stWait" type="range" min="15" max="300" step="5"><span class="rv" id="stWaitV">90 秒</span></div></div>
+      </div>
+      <div class="dgroup"><h4>数据</h4>
+        <div class="drow"><label for="stWindow">曲线点数</label>
+          <div class="ctl"><select class="inp" id="stWindow"><option value="120">120</option><option value="300">300</option><option value="600">600</option><option value="1200">1200</option></select></div></div>
+        <div class="drow"><label for="stTermMax">终端行数</label>
+          <div class="ctl"><select class="inp" id="stTermMax"><option value="500">500</option><option value="1500">1500</option><option value="5000">5000</option></select></div></div>
+      </div>
+      <div class="dgroup"><h4>界面</h4>
+        <div class="drow"><span class="lb">主题</span>
+          <div class="ctl"><div class="seg" id="stTheme" role="group" aria-label="界面主题">
+            <button type="button" data-v="dark">深色遥测</button><button type="button" data-v="light">浅色蓝图</button></div></div></div>
+      </div>
+    </div>
+    <div class="dfoot">
+      <span class="hint">改动仅保存在本地浏览器</span>
+      <button class="btn ghost" id="btnResetLayout">重置全部布局</button>
+    </div>
+  </div>
+  <div class="dpane" id="paneDoc">
+    <div class="dbody">
+      <div class="doc" id="docFlash"><h5>烧写握手</h5>
+        <p>握手 <b class="num" id="stHs">2400</b> / 传输 <b class="num" id="stTx">9600</b> 由后端固定，与 <span class="mono">workbench.cli</span> 一致：STC89 只认断 VCC 重上电，拉 RST 和 DTR 均无效。烧写完成后芯片自动启动新程序。</p></div>
+      <div class="doc" id="docLayout"><h5>拖拽布局</h5>
+        <p>宽屏下可拖动两条竖缝调整左右栏宽、横缝调整卡片高度；双击任意分割条可还原，聚焦后支持方向键微调（Shift 步长 40）。</p></div>
+      <div class="doc" id="docView"><h5>HEX 视图</h5>
+        <p>将串口收到的文本按 UTF-8 字节十六进制展示。波特率不匹配时芯片输出为乱码，判定请以文本视图为准。</p></div>
+      <div class="doc" id="docNet"><h5>网络边界</h5>
+        <p>服务仅绑定 <span class="mono">127.0.0.1</span>，无登录鉴权，请勿暴露到公网或共享网络。</p></div>
+    </div>
+  </div>
+</aside>
+<div class="dscrim" id="dscrim"></div>
+
+<div class="toasts" id="toasts"></div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
