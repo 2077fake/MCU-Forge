@@ -3,6 +3,10 @@
 面向 STC89/AT89C52 开发板（HC6800-ES / 普中 A2 兼容）的 AI 自驱动开发与实时遥测工作台：
 **Agent 产码 → Keil UV4 编译 → stcgal ISP 烧写 → 串口日志与多通道曲线实时展示**。
 
+## 架构
+
+![MCU-Forge 架构](docs/architecture.png)
+
 ## 目录结构
 
 ```text

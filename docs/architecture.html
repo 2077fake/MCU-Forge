@@ -1,0 +1,59 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{box-sizing:border-box;margin:0}
+body{width:1600px;height:900px;background:#f6f4ef;font-family:"Microsoft YaHei","Segoe UI",sans-serif;color:#1c1c1c;position:relative;overflow:hidden}
+.t{position:absolute;left:70px;top:46px;font-size:56px;font-weight:800;letter-spacing:-1px}
+.s{position:absolute;left:72px;top:122px;font-size:24px;color:#555}
+.col{position:absolute;top:200px;height:520px;border:2px solid #1c1c1c;border-radius:6px;background:#fff;padding:20px 24px}
+.col h3{font-size:15px;letter-spacing:2px;color:#888;font-weight:600;margin-bottom:6px}
+.col h2{font-size:28px;margin-bottom:18px}
+.box{border:1.5px solid #1c1c1c;border-radius:4px;padding:11px 14px;margin-bottom:12px;background:#fbfaf7}
+.box b{font-size:19px;display:block}
+.box span{font-size:15px;color:#666}
+.acc{background:#1c1c1c;color:#fff}.acc span{color:#bbb}
+.org{border-color:#d9541e;background:#fff3ec}
+code{font-family:Consolas,monospace;font-size:14px;color:#d9541e}
+.bar{position:absolute;left:70px;top:760px;width:1460px;height:90px;border:2px dashed #1c1c1c;border-radius:6px;padding:16px 26px;font-size:20px;display:flex;align-items:center;gap:40px;background:#fff}
+.bar small{font-size:15px;color:#777;display:block;margin-top:4px}
+.lab{position:absolute;font-size:15px;color:#d9541e;font-family:Consolas,monospace;font-weight:600}
+.ft{position:absolute;right:70px;top:60px;text-align:right;font-family:Consolas,monospace;font-size:20px;line-height:1.7}
+</style></head><body>
+<div class="t">MCU-Forge</div>
+<div class="s">51 单片机 AI 自驱动开发工作台 · 一句话需求,走完 产码→编译→烧写→验收</div>
+<div class="ft">github.com/2077fake/MCU-Forge<br>STC89 / AT89C52 · Keil C51 · stcgal</div>
+
+<div class="col" style="left:70px;width:380px"><h3>AGENT</h3><h2>AI 编程助手</h2>
+<div class="box acc"><b>你说一句想要的效果</b><span>例:折返跑马灯、数码管动画</span></div>
+<div class="box"><b>AGENTS.md</b><span>红线:模板与工作台只读</span></div>
+<div class="box"><b>SKILL.md</b><span>落地六步流程(唯一权威)</span></div>
+<div class="box"><b>docs/hardware-facts.md</b><span>引脚映射 · 串口协议 · 踩坑库</span></div>
+<div class="box org"><b>experiments/NN-效果名/</b><span>只改 main.c,产物与说明同目录</span></div>
+</div>
+
+<div class="col" style="left:610px;width:420px"><h3>WORKBENCH · 127.0.0.1:8765</h3><h2>workbench/</h2>
+<div class="box acc"><b>server.py</b><span>HTTP API + SSE 事件流(仅标准库)</span></div>
+<div class="box"><b>toolchain.py</b><span>封装 Keil UV4 编译与 stcgal 烧写</span></div>
+<div class="box"><b>serial_mgr.py</b><span>串口独占管理与实时推送</span></div>
+<div class="box"><b>core.py</b><span>日志诊断 · HEX 校验 · 曲线解析</span></div>
+<div class="box"><b>cli.py</b><span>无网页时的命令行编译烧写</span></div>
+</div>
+
+<div class="col" style="left:1190px;width:340px"><h3>TOOLCHAIN &amp; HARDWARE</h3><h2>工具链与板卡</h2>
+<div class="box"><b>Keil UV4 / C51</b><span>.uvproj → .hex</span></div>
+<div class="box"><b>stcgal</b><span>ISP 烧写 (-P stc89)</span></div>
+<div class="box"><b>USB-CH340 · 9600-8N1</b><span>固件发 <code>v: 1,2,3</code> 一行一采样</span></div>
+<div class="box org"><b>STC89 开发板</b><span>LED(P2) · 数码管 · 11.0592MHz</span></div>
+</div>
+
+<div class="lab" style="left:455px;top:330px">POST /api/build</div>
+<div class="lab" style="left:455px;top:352px">POST /api/flash</div>
+<div class="lab" style="left:1035px;top:330px">编译 / 烧写</div>
+<div class="lab" style="left:1035px;top:352px">串口数据 ↔</div>
+<svg style="position:absolute;left:0;top:0" width="1600" height="900">
+<defs><marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#1c1c1c"/></marker></defs>
+<g stroke="#1c1c1c" stroke-width="2.5" fill="none" marker-end="url(#a)">
+<line x1="452" y1="400" x2="606" y2="400"/><line x1="1032" y1="400" x2="1186" y2="400"/>
+<line x1="830" y1="722" x2="830" y2="758"/></g>
+<g stroke="#1c1c1c" stroke-width="2.5" fill="none" marker-start="url(#a)"><line x1="1186" y1="440" x2="1032" y2="440"/></g>
+</svg>
+<div class="bar"><div><b>浏览器 · 纯展示面板</b><small>不发起任何操作,只订阅 SSE</small></div><div>LED 状态</div><div>多通道串口曲线</div><div>终端日志</div><div style="margin-left:auto;color:#d9541e;font-weight:700">验收 = 用户看得见</div></div>
+</body></html>
